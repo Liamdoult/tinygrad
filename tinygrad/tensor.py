@@ -4,6 +4,7 @@ import numpy as np
 import os
 try:
   import pyopencl as cl
+  import pyopencl.array as cl_array
   GPU = True
 except ImportError:
   # no GPU support
@@ -52,7 +53,7 @@ class Tensor:
   def __init__(self, data, gpu=False):
     if isinstance(data, list):
       data = np.array(data, dtype=np.float32)
-    elif GPU and isinstance(data, cl._cl.Buffer):
+    elif GPU and isinstance(data, cl_array.Array):
       self.gpu = True
     elif not isinstance(data, np.ndarray):
       raise TypeError("Error constructing tensor with %r" % data)
@@ -136,13 +137,11 @@ class Tensor:
 
   def cpu(self):
     if self.gpu:
-      ret = Tensor(np.empty(self.shape, dtype=np.float32), gpu=False)
-      cl.enqueue_copy(cl_queue, ret.data, self.data)
+      ret = Tensor(self.data.get(cl_queue), gpu=False)
       if self.grad:
         ret.grad = self.grad.cpu()
       return ret
-    else:
-      return self
+    return self
 
   def cuda_(self):
     self.data = self.cuda().data
@@ -154,15 +153,11 @@ class Tensor:
     if not self.gpu:
       require_init_gpu()
       assert self.data.dtype == np.float32   # only float32 on GPU
-      data = cl.Buffer(cl_ctx, cl.mem_flags.READ_ONLY | cl.mem_flags.COPY_HOST_PTR, hostbuf=self.data.ravel())
-      data.shape = self.shape
-      data.dtype = self.data.dtype
-      ret = Tensor(data)
+      ret = Tensor(cl_array.to_device(cl_queue, self.data), gpu=True)
       if self.grad:
         ret.grad = self.grad.cuda()
       return ret
-    else:
-      return self
+    return self
 
   def detach(self):
     return Tensor(self.data, self.gpu)

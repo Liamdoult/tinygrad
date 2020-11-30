@@ -29,6 +29,7 @@ class TestTinygrad(unittest.TestCase):
       out = x.matmul(W).relu()
       out = torch.nn.functional.log_softmax(out, dim=1)
       out = out.mul(m).add(m).sum()
+      print(out.cpu())
       out.backward()
       return out.detach().numpy(), x.grad, W.grad
 
