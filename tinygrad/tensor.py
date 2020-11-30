@@ -86,21 +86,21 @@ class Tensor:
   def shape(self):
     return self.data.shape
 
-  @staticmethod
-  def zeros(*shape, gpu=False):
-    return Tensor(np.zeros(shape, dtype=np.float32), gpu=gpu)
+  @classmethod
+  def zeros(cls, *shape, gpu=False):
+    return cls(np.zeros(shape, dtype=np.float32), gpu=gpu)
 
-  @staticmethod
-  def ones(*shape, gpu=False):
-    return Tensor(np.ones(shape, dtype=np.float32), gpu=gpu)
+  @classmethod
+  def ones(cls, *shape, gpu=False):
+    return cls(np.ones(shape, dtype=np.float32), gpu=gpu)
 
-  @staticmethod
-  def randn(*shape, gpu=False):
-    return Tensor(np.random.randn(*shape).astype(np.float32), gpu=gpu)
+  @classmethod
+  def randn(cls, *shape, gpu=False):
+    return cls(np.random.randn(*shape).astype(np.float32), gpu=gpu)
 
-  @staticmethod
-  def eye(dim, gpu=False):
-    return Tensor(np.eye(dim).astype(np.float32), gpu=gpu)
+  @classmethod
+  def eye(cls, dim, gpu=False):
+    return cls(np.eye(dim).astype(np.float32), gpu=gpu)
 
   def backward(self, allow_fill=True):
     if self._ctx is None:
