@@ -110,7 +110,7 @@ class Tensor:
       # fill in the first grad with one
       # this is "implicit gradient creation"
       assert self.data.shape == (1,)
-      self.grad = Tensor(np.ones(self.data.shape, dtype=self.data.dtype), gpu=self.gpu)
+      self.grad = Tensor.ones(*self.data.shape, gpu=self.gpu)
 
     visited, nodes = set(), []
     def deepwalk(node):
